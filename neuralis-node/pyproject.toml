@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "neuralis-node"
+version = "0.1.0"
+description = "Neuralis — decentralized AI-native internet node (Module 1: core identity & config)"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+
+dependencies = [
+    # Cryptography — Ed25519 identity, Fernet encryption at rest
+    "cryptography>=41.0.0",
+
+    # TOML parsing (Python 3.11+ has tomllib built-in; 3.10 needs backport)
+    "tomli>=2.0.1; python_version < '3.11'",
+
+    # TOML writing
+    "tomli-w>=1.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4",
+    "pytest-asyncio>=0.23",
+]
+
+[project.scripts]
+neuralis-node = "neuralis.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["neuralis*"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]

@@ -1,0 +1,20 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Boot Neuralis Node",
+            "type": "python",
+            "request": "launch",
+            "module": "neuralis.cli",
+            "args": [
+                "boot",
+                "--alias",
+                "dev-node"
+            ],
+            "cwd": "${workspaceFolder}/neuralis-node",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/neuralis-node"
+            }
+        }
+    ]
+}

@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "neuralis-agent-protocol"
+version = "0.1.0"
+description = "Neuralis Module 5 — inter-agent task routing and protocol messaging"
+requires-python = ">=3.11"
+dependencies = []   # no external deps; neuralis-node is on PYTHONPATH
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["neuralis*"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.setuptools.package-dir]
+"" = "."

@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "neuralis-mesh-transport"
+version = "0.2.0"
+description = "Neuralis — P2P mesh transport (Module 2: discovery, encryption, peer management)"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+
+dependencies = [
+    # Module 1 — node identity, config, lifecycle
+    "neuralis-node>=0.1.0",
+    # Cryptography — X25519 ECDH, AES-GCM, HKDF
+    "cryptography>=41.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4",
+    "pytest-asyncio>=0.23",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["neuralis*"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
