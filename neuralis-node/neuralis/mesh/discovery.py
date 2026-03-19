@@ -104,6 +104,21 @@ class PeerAnnouncement:
 # mDNS probe wire format
 # ---------------------------------------------------------------------------
 
+    @classmethod
+    def from_multiaddr(cls, addr: str) -> "PeerAnnouncement":
+        """Create a PeerAnnouncement from a bare multiaddr string."""
+        from neuralis.mesh.host import _parse_host_port
+        host, port = _parse_host_port(addr)
+        if not host or not port:
+            raise ValueError(f"Cannot parse multiaddr: {addr!r}")
+        return cls(
+            source="manual",
+            node_id="",
+            peer_id="",
+            public_key="",
+            addresses=[addr],
+        )
+
 def _build_mdns_probe(
     node_id: str,
     peer_id: str,

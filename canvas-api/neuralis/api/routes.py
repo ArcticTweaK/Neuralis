@@ -245,23 +245,45 @@ async def add_content(body: ContentAddRequest, node=Depends(get_node)):
 
 @content_router.get("/{cid}", response_model=ContentGetResponse)
 async def get_content(cid: str, node=Depends(get_node)):
-    """Retrieve content by CID."""
+    """Retrieve content by CID — falls back to peer fetch if not local."""
     ipfs = _ipfs(node)
+    data_bytes = None
     try:
         data_bytes = await ipfs.get(cid)
-        if data_bytes is None:
-            raise HTTPException(status_code=404, detail=f"CID {cid!r} not found")
-        return ContentGetResponse(
-            cid  = cid,
-            data = data_bytes.decode("utf-8", errors="replace"),
-            size = len(data_bytes),
-        )
     except HTTPException:
         raise
-    except Exception as exc:
-        logger.error("get_content error: %s", exc)
-        raise HTTPException(status_code=500, detail=str(exc))
-
+    except Exception:
+        pass
+    if data_bytes is not None:
+        return ContentGetResponse(
+            cid=cid,
+            data=data_bytes.decode("utf-8", errors="replace"),
+            size=len(data_bytes),
+        )
+    mesh = node.subsystems.get("mesh")
+    if mesh and mesh.connections:
+        import asyncio, base64
+        from neuralis.mesh.peers import MessageType
+        loop = asyncio.get_event_loop()
+        result_future = loop.create_future()
+        async def _on_cid_response(envelope, peer):
+            if envelope.payload.get("cid") == cid and not result_future.done():
+                raw = envelope.payload.get("data")
+                if raw:
+                    result_future.set_result(base64.b64decode(raw))
+        mesh.on_message(MessageType.CONTENT_RESPONSE, _on_cid_response)
+        await mesh.broadcast(MessageType.CONTENT_REQUEST, {"cid": cid})
+        try:
+            data_bytes = await asyncio.wait_for(result_future, timeout=5.0)
+            await ipfs.add(data_bytes, pin=True, name=f"fetched:{cid}")
+            return ContentGetResponse(
+                cid=cid,
+                data=data_bytes.decode("utf-8", errors="replace"),
+                size=len(data_bytes),
+            )
+        except asyncio.TimeoutError:
+            pass
+    raise HTTPException(status_code=404, detail=f"CID not found on this node or any peer")
 
 @content_router.post("/{cid}/pin", response_model=PinResponse)
 async def pin_content(cid: str, body: PinRequest, node=Depends(get_node)):

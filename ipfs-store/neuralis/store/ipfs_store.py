@@ -397,6 +397,10 @@ class IPFSStore:
             lambda: self._pins.is_pinned(cid),
         )
 
+    async def list_pins(self):
+        """Alias for ls() — called by canvas-api routes."""
+        return await self.ls()
+
     async def ls(
         self,
         pin_type: Optional[PinType] = None,

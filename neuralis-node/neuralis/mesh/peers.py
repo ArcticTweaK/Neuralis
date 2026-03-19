@@ -58,6 +58,7 @@ class MessageType(str, Enum):
     # Content routing (stub — expanded in Module 3)
     CONTENT_ANNOUNCE = "CONTENT_ANNOUNCE"
     CONTENT_REQUEST  = "CONTENT_REQUEST"
+    CONTENT_RESPONSE = "CONTENT_RESPONSE"
     # Agent messaging (stub — expanded in Module 4/5)
     AGENT_MSG      = "AGENT_MSG"
     # Disconnect signaling
